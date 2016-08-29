@@ -5,13 +5,14 @@ class Pour
 
 	def initialize
 		#load default values
+		@conc_type = "Type I,II,III             "
 		@chem_coef = 1.0
 		@weight_coef = 1.0
 		@conc_weight = 145.0
 		@conc_temp = 90.0
 		@deflect_allow = 180 #inverse of actual
 		@wind_load = 15.0
-		@pour_type = "WALL"
+		@pour_type = "WALL  "
 		@form_one_time = true
 		@wet_cond = false
 	end
@@ -36,7 +37,7 @@ class Pour
 		if pour_choice == 1 then
 			@pour_type = "COLUMN"
 		elsif pour_choice == 2 then
-			@pour_type = "WALL"
+			@pour_type = "WALL  "
 		else
 			puts "I didn't recognize that choice"
 		end
@@ -50,16 +51,25 @@ class Pour
 		puts "(4) Other type with retarder add"
 		puts "(5) Other with more than 70% slag or 40% fly ash"
 		puts "Enter concrete type by NUMBER:" 
-		conc_type = gets.chomp.to_i
-		case conc_type
+		choice = gets.chomp.to_i
+		case choice
 		when 1
+			@conc_type = "Type I,II,III             "
 			@chem_coef = 1.0
-		when 2, 3
+		when 2
+			@conc_type = "Type I,II,III w/ retarder "
 			@chem_coef = 1.2
-		when 4, 5
+		when 3
+			@conc_type = "Otherw/<70%slag,<40%flyash"
+			@chem_coef = 1.2
+		when 4
+			@conc_type = "Other type w/ retarder    "
+			@chem_coef = 1.4
+		when 5
+			@conc_type = "Otherw/>70%slag,>40%flyash"
 			@chem_coef = 1.4
 		else
-			puts "That's an invalid response. Try again."
+			puts "That's an invalid response. No change."
 		end
 	end	
 	
@@ -98,7 +108,7 @@ class Pour
 		when 3
 			@deflect_allow = 360
 		else
-			puts "That's an invalid response. Try Again"
+			puts "That's an invalid response. No Change."
 		end
 	end
 	
@@ -152,30 +162,61 @@ class Pour
 	#debugging display
 	def display
 		system "clear" or system "cls"
-		puts "                     CURRENT CONCRETE POUR VALUES"
-		puts "------------------------------------------------------------------------"
-		puts "| 1) CONCRETE WEIGHT: " + @conc_weight.to_s + " pcf       | 2) CONCRETE TEMP: " + @conc_temp.to_s + " deg (F) |"
-		puts "| 3) DEFLECTION ALLOWANCE: 1/" + @deflect_allow.to_s + "      | 4) WIND LOAD: " + @wind_load.to_s + " psf         |"
-		puts "| 5) USE FORM ONLY ONCE?: " + @form_one_time.to_s + "        | 6) WET CONDITION: " + @wet_cond.to_s + "        |"
-		puts "| 7) PLACEMENT RATE: " + @place_rate.to_s + " VLF/HR      | 8) MAXIMUM HEIGHT: " + @pour_height.to_s + " VLF    |"
-		puts "| 9) TYPE OF POUR: " + @pour_type + "                                                |"
-		puts "------------------------------------------------------------------------"
-		puts "| CHEM COEF: " + @chem_coef.to_s + "                      | WEIGHT COEF: " + @weight_coef.to_s + "        |"
+		puts "                         CURRENT CONCRETE POUR VALUES"
+		puts "-------------------------------------------------------------------------------"
+		puts "| 1) CONCRETE TYPE: " + @conc_type + " | 2) CONCRETE WEIGHT: " + @conc_weight.to_s + " pcf|"
+		puts "| 3) CONCRETE TEMP: " + @conc_temp.to_s + " deg(F)                | 4) WIND LOAD: " + @wind_load.to_s + " psf       |"
+		puts "| 5) TYPE OF POUR: " + @pour_type + "                      | 6) DEFLECTION: 1/" + @deflect_allow.to_s + "         |"
+		puts "| 7) USE FORM ONLY ONCE?: " + @form_one_time.to_s + "                 | 8) WET CONDITION: " + @wet_cond.to_s + "      |"
+		puts "| 9) PLACEMENT RATE: " + @place_rate.to_s + " VLF/HR                | 10) MAXIMUM HEIGHT: " + @pour_height.to_s + " VLF  |"
+		puts "-------------------------------------------------------------------------------"
+		puts "| CHEM COEF: " + @chem_coef.to_s + "                             | WEIGHT COEF: " + @weight_coef.to_s + "             |" #for debugging only
 		puts "| PRESSURE: " + @pressure.to_s + " psf"
 		puts "   "
 	end
 end
 
 
-puts "Welcom to form board calculator."
+puts "Welcome to form board calculator."
 puts "First, we need to get some basic information."
 puts ""
 
 p1 = Pour.new
-p1.set_chem_coef
 p1.set_placement_rate
 p1.set_max_height
 p1.set_pour_type
 p1.calc_pressure
 p1.display
 
+puts "Make any necessary changes above by entering the Number. Enter F to go to forms or Q to quit."
+choice = gets.chomp.to_s
+
+while choice != "Q" || choice != "F"
+	case choice
+	when "1"
+		p1.set_chem_coef
+	when "2"
+		p1.set_weight_coef
+	when "3"
+		p1.set_temp
+	when "4"
+		p1.set_wind_load
+	when "5"
+		p1.set_pour_type
+	when "6"
+		p1.set_deflection
+	when "7"
+		p1.set_form_use
+	when "8"
+		p1.set_wet_cond
+	when "9"
+		p1.set_placement_rate
+	when "10"
+		p1.set_max_height
+	end
+	
+	p1.calc_pressure
+	p1.display
+	puts "Make any necessary changes above by entering the Number. Enter F to go to forms or Q to quit."
+	choice = gets.chomp.to_s
+end
